@@ -4,7 +4,7 @@ services:
   calcom:
     image: 'calcom/cal.com:latest'
     container_name: calcom
-    command: sh -c "npx prisma migrate deploy --schema /calcom/packages/prisma/schema.prisma && npm run start"
+    command: sh -c "find /calcom/apps/web/.next -name '*.js' -type f -exec sed -i 's|http://localhost:3000|https://schedule.innov8protech.com|g' {} + 2>/dev/null; find /calcom/apps/web/.next -name '*.json' -type f -exec sed -i 's|http://localhost:3000|https://schedule.innov8protech.com|g' {} + 2>/dev/null; npx prisma migrate deploy --schema /calcom/packages/prisma/schema.prisma && npm run start"
     labels:
       caddy_0=https://schedule.innov8protech.com
       caddy_0.encode=zstd gzip
