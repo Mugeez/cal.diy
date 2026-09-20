@@ -35,6 +35,7 @@ services:
       - 'NEXT_PUBLIC_WEBAPP_URL=https://schedule.innov8protech.com'
       - 'BUILT_NEXT_PUBLIC_WEBAPP_URL=http://localhost:3000'
       - 'NEXT_PUBLIC_API_V2_URL=${SERVICE_API_V2_URL}'
+      - 'NEXT_PUBLIC_IS_E2E=0'
       - 'ALLOWED_HOSTNAMES="schedule.innov8protech.com"'
       - 'AUTH_TRUST_HOST=true'
       - 'CALCOM_TELEMETRY_DISABLED=1'
