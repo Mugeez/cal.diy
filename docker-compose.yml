@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   calcom:
-    image: 'calcom/cal.com:v6.2.0'
+    image: 'calcom/cal.com:latest'
     container_name: calcom
     extra_hosts:
       - "console.cal.com:0.0.0.0"
