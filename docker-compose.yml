@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   calcom:
-    image: 'calcom/cal.com:latest'
+    image: 'calcom/cal.com:v6.2.0'
     container_name: calcom
     command: sh -c "npx prisma migrate deploy --schema /calcom/packages/prisma/schema.prisma && /calcom/scripts/start.sh"
     labels:
