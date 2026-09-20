@@ -11,13 +11,17 @@ services:
       - "api.cal.com:0.0.0.0"
     command: sh -c "npx prisma migrate deploy --schema /calcom/packages/prisma/schema.prisma && /calcom/scripts/start.sh"
     labels:
-      caddy_0=https://schedule.innov8protech.com
-      caddy_0.encode=zstd gzip
-      caddy_0.handle_path=/*
-      caddy_0.handle_path.0_reverse_proxy={{upstreams 3000}}
-      caddy_0.header=-Server
-      caddy_0.try_files={path} /index.html /index.php
-      caddy_ingress_network=coolify
+      traefik.enable: "true"
+      traefik.docker.network: "coolify"
+      traefik.http.routers.calcom-http.entryPoints: "http"
+      traefik.http.routers.calcom-http.rule: "Host(`schedule.innov8protech.com`)"
+      traefik.http.routers.calcom-http.middlewares: "calcom-redirect"
+      traefik.http.middlewares.calcom-redirect.redirectscheme.scheme: "https"
+      traefik.http.routers.calcom-https.entryPoints: "https"
+      traefik.http.routers.calcom-https.rule: "Host(`schedule.innov8protech.com`)"
+      traefik.http.routers.calcom-https.tls: "true"
+      traefik.http.routers.calcom-https.tls.certresolver: "letsencrypt"
+      traefik.http.services.calcom.loadbalancer.server.port: "3000"
     networks:
       - coolify
     depends_on:
