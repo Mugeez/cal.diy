@@ -2,17 +2,19 @@ version: '3.8'
 
 services:
   calcom:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        - 'NEXT_PUBLIC_WEBAPP_URL=https://booking.innov8protech.com'
-        - NEXT_PUBLIC_LICENSE_CONSENT=agree
-        - CALCOM_TELEMETRY_DISABLED=1
-        - 'NEXTAUTH_SECRET=${NEXTAUTH_SECRET}'
-        - 'CALENDSO_ENCRYPTION_KEY=${CALENDSO_ENCRYPTION_KEY}'
-        - 'DATABASE_URL=postgresql://${SERVICE_USER_POSTGRES}:${SERVICE_PASSWORD_POSTGRES}@postgres:5432/${POSTGRES_DATABASE:-calcom}'
+    image: 'calcom/cal.com:latest'
     container_name: calcom
+    command: sh -c "npx prisma migrate deploy --schema /calcom/packages/prisma/schema.prisma && npm run start"
+    labels:
+      caddy_0=https://schedule.innov8protech.com
+      caddy_0.encode=zstd gzip
+      caddy_0.handle_path=/*
+      caddy_0.handle_path.0_reverse_proxy={{upstreams 3000}}
+      caddy_0.header=-Server
+      caddy_0.try_files={path} /index.html /index.php
+      caddy_ingress_network=coolify
+    networks:
+      - coolify
     depends_on:
       postgres:
         condition: service_healthy
@@ -21,12 +23,13 @@ services:
     environment:
       - 'DATABASE_URL=postgresql://${SERVICE_USER_POSTGRES}:${SERVICE_PASSWORD_POSTGRES}@postgres:5432/${POSTGRES_DATABASE:-calcom}'
       - 'DATABASE_DIRECT_URL=postgresql://${SERVICE_USER_POSTGRES}:${SERVICE_PASSWORD_POSTGRES}@postgres:5432/${POSTGRES_DATABASE:-calcom}'
-      - 'NEXTAUTH_URL=https://booking.innov8protech.com/api/auth'
+      - 'NEXTAUTH_URL=https://schedule.innov8protech.com/api/auth'
       - 'NEXTAUTH_SECRET=${SERVICE_BASE64_32_SECRET}'
       - 'CALENDSO_ENCRYPTION_KEY=${SERVICE_BASE64_32_SECRET}'
-      - 'NEXT_PUBLIC_WEBAPP_URL=https://booking.innov8protech.com'
+      - 'NEXT_PUBLIC_WEBAPP_URL=https://schedule.innov8protech.com'
       - 'NEXT_PUBLIC_API_V2_URL=${SERVICE_API_V2_URL}'
-      - CALCOM_TELEMETRY_DISABLED=1
+      - 'ALLOWED_HOSTNAMES=["schedule.innov8protech.com"]'
+      - 'CALCOM_TELEMETRY_DISABLED=1'
       - 'REDIS_URL=redis://redis:6379'
       - 'EMAIL_SERVER_HOST=${SMTP_HOST}'
       - 'EMAIL_SERVER_PORT=${SMTP_PORT}'
@@ -38,6 +41,8 @@ services:
   postgres:
     image: 'postgres:16-alpine'
     container_name: calcom-postgres
+    networks:
+      - coolify
     environment:
       - 'POSTGRES_USER=${SERVICE_USER_POSTGRES}'
       - 'POSTGRES_PASSWORD=${SERVICE_PASSWORD_POSTGRES}'
@@ -45,9 +50,7 @@ services:
     volumes:
       - 'calcom-postgresql-data:/var/lib/postgresql/data'
     healthcheck:
-      test:
-        - CMD-SHELL
-        - 'pg_isready -U ${SERVICE_USER_POSTGRES} -d ${POSTGRES_DATABASE:-calcom}'
+      test: ['CMD-SHELL', 'pg_isready -U ${SERVICE_USER_POSTGRES} -d ${POSTGRES_DATABASE:-calcom}']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -56,6 +59,8 @@ services:
   redis:
     image: 'redis:7-alpine'
     container_name: calcom-redis
+    networks:
+      - coolify
     volumes:
       - 'calcom-redis-data:/data'
     command: 'redis-server --appendonly yes'
@@ -63,8 +68,8 @@ services:
 
 volumes:
   calcom-postgresql-data: null
-  calcom-redis-data: null    restart: unless-stopped
-
-volumes:
-  calcom-postgresql-data: null
   calcom-redis-data: null
+
+networks:
+  coolify:
+    external: true
