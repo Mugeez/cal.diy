@@ -4,6 +4,11 @@ services:
   calcom:
     image: 'calcom/cal.com:v6.2.0'
     container_name: calcom
+    extra_hosts:
+      - "console.cal.com:0.0.0.0"
+      - "app.cal.com:0.0.0.0"
+      - "license.cal.com:0.0.0.0"
+      - "api.cal.com:0.0.0.0"
     command: sh -c "npx prisma migrate deploy --schema /calcom/packages/prisma/schema.prisma && /calcom/scripts/start.sh"
     labels:
       caddy_0=https://schedule.innov8protech.com
@@ -33,6 +38,8 @@ services:
       - 'ALLOWED_HOSTNAMES="schedule.innov8protech.com"'
       - 'AUTH_TRUST_HOST=true'
       - 'CALCOM_TELEMETRY_DISABLED=1'
+      - 'CAL_SIGNATURE_TOKEN=self-hosted'
+      - 'CALCOM_LICENSE_KEY='
       - 'REDIS_URL=redis://redis:6379'
       - 'EMAIL_SERVER_HOST=${SMTP_HOST}'
       - 'EMAIL_SERVER_PORT=${SMTP_PORT}'
