@@ -38,6 +38,7 @@ services:
       - 'NEXTAUTH_SECRET=8fK2jL9pQzR4mN7vB1xC5yT8wE3sA6dH'
       - 'CALENDSO_ENCRYPTION_KEY=2pM9vK4jL7qR1xN8bC5yT3wE6sA9dH2f'
       - 'NEXT_PUBLIC_WEBAPP_URL=https://schedule.innov8protech.com'
+      - 'NEXT_PUBLIC_WEBSITE_URL=https://schedule.innov8protech.com'
       - 'BUILT_NEXT_PUBLIC_WEBAPP_URL=https://schedule.innov8protech.com'
       - 'NEXT_PUBLIC_API_V2_URL=${SERVICE_API_V2_URL}'
       - 'NEXT_PUBLIC_IS_E2E=0'
